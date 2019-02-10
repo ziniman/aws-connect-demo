@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
 table = dynamodb.Table('boaz_sessions')
 
-languages = ['en', 'de', 'es', 'nl']
+languages = ['en', 'de', 'es', 'nl', 'ru']
 # Helper class to convert a DynamoDB item to JSON.
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
