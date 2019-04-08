@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
 table = dynamodb.Table('boaz_sessions')
 
-languages = ['en', 'de', 'es', 'nl', 'ru']
+languages = ['en', 'de', 'es', 'nl', 'ru', 'ar']
 # Helper class to convert a DynamoDB item to JSON.
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
@@ -104,7 +104,11 @@ def NextSession(event, context):
 
     lookup_val = time.strftime("%d-%m-%Y")
 
-    language_id = int(event["Details"]["Parameters"]["language_id"])
+    language_id = event["Details"]["Parameters"]["language_id"]
+    if language_id!="Timeout":
+        language_id = int(language_id)
+    else:
+        language_id = 1
 
     #TZ Adjustments - Basic TZ is UTC
     current_ts = int(time.time()) + (60*60*3)
@@ -127,24 +131,8 @@ def NextSession(event, context):
     else:
         content = 'I could not find any future sessions.'
 
-    if language_id>1:
-        content = translate_text(content, languages[1])
-        # TODO: write code...
-    logger.info('Responding with: ' + content)
-
-    resultMap = {"Text":content}
-    return resultMap
-
-def translate_prompt(event, context):
-    #return event
-    logger.info('Received event: ' + json.dumps(event))
-
-
-    language_id = int(event["Details"]["Parameters"]["language_id"])
-    content = 'Hi and thanks for calling. Stay tuned while I check for next session of Boaz Ziniman.'
-
-    if language_id>1:
-        content = translate_text(content, languages[1])
+    if language_id>1 and len(languages)>=language_id:
+        content = translate_text(content, languages[language_id-1])
         # TODO: write code...
     logger.info('Responding with: ' + content)
 
